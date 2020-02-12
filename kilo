@@ -1,0 +1,137 @@
+keystone user-create --name=nova --pass=nova_pass --email=nova@example.com
+keystone user-role-add --user=nova --tenant=service --role=admin
+keystone service-create --name=nova --type=compute --description="OpenStack Compute"
+keystone endpoint-create --service=nova --publicurl=http://192.168.10.119:8774/v2/%\(tenant_id\)s --internalurl=http://192.168.10.119:8774/v2/%\(tenant_id\)s --adminurl=http://192.168.10.119:8774/v2/%\(tenant_id\)s
+
+
+vim /etc/nova/nova.conf
+
+rpc_backend = rabbit
+auth_strategy = keystone
+my_ip = 192.168.10.119
+vnc_enabled = True
+vncserver_listen = 192.168.10.119
+vncserver_proxyclient_address = 192.168.10.119
+novncproxy_base_url = http://192.168.10.119:6080/vnc_auto.html
+
+network_api_class = nova.network.neutronv2.api.API
+security_group_api = neutron
+linuxnet_interface_driver = nova.network.linux_net.LinuxOVSInterfaceDriver
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+
+scheduler_default_filters=AllHostsFilter
+
+[database]
+connection = mysql://nova:zeon9989@192.168.10.119/nova
+
+[oslo_messaging_rabbit]
+rabbit_host = 127.0.0.1
+rabbit_password = rabbit
+
+[keystone_authtoken]
+auth_uri = http://192.168.10.119:5000
+auth_url = http://192.168.10.119:35357
+auth_plugin = zeon9989
+project_domain_id = default
+user_domain_id = default
+project_name = service
+username = nova
+password = zeon9989
+
+[glance]
+host = 192.168.10.119
+
+[oslo_concurrency]
+lock_path = /var/lock/nova
+
+[neutron]
+service_metadata_proxy = True
+metadata_proxy_shared_secret = openstack
+url = http://192.168.10.119:9696
+auth_strategy = keystone
+admin_auth_url = http://192.168.10.119:35357/v2.0
+admin_tenant_name = service
+admin_username = neutron
+admin_password = zeon9989
+
+threjr
+
+
+keystone user-create --name=neutron --pass=neutron_pass --email=neutron@example.com
+keystone service-create --name=neutron --type=network --description="OpenStack Networking"
+keystone user-role-add --user=neutron --tenant=service --role=admin
+keystone endpoint-create --service=neutron --publicurl http://192.168.10.119:9696 --adminurl http://192.168.10.119:9696  --internalurl http://192.168.10.119:9696
+/etc/neutron/neutron.conf
+
+[DEFAULT]
+......
+verbose = True
+debug = True
+core_plugin = ml2
+service_plugins = router
+auth_strategy = keystone
+allow_overlapping_ips = True
+notify_nova_on_port_status_changes = True
+notify_nova_on_port_data_changes = True
+nova_url = http://192.168.10.119:8774/v2
+nova_region_name = regionOne
+nova_admin_username = nova
+nova_admin_tenant_id = 2cd03b576bcd44599e4fdcd15453b6f0
+nova_admin_tenant_name = service
+nova_admin_password = zeon9989
+nova_admin_auth_url = http://192.168.10.119:35357/v2.0
+notification_driver=neutron.openstack.common.notifier.rpc_notifier
+rpc_backend=rabbit
+
+[agent]
+......
+root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+
+[keystone_authtoken]
+auth_uri = http://192.168.10.119:35357/v2.0/
+auth_url = http://192.168.10.119:35357
+auth_plugin = zeon9989
+project_domain_id = default
+user_domain_id = default
+project_name = service
+username = neutron
+password = zeon9989
+
+[database]
+......
+connection = mysql://neutron:zeon9989@192.168.10.119/neutron
+
+[nova]
+......
+auth_url = http://192.168.10.119:35357
+auth_plugin = zeon9989
+project_domain_id = default
+user_domain_id = default
+region_name = regionOne
+project_name = service
+username = nova
+password = zeon9989
+
+[oslo_concurrency]
+......
+lock_path = /var/lock/neutron/
+
+[oslo_messaging_rabbit]
+......
+rabbit_host = localhost
+rabbit_userid = guest
+rabbit_password = rabbit
+rabbit_virtual_host = /
+
+
+
+
+
+
+
+
+
+
+
+
+

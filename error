@@ -1,0 +1,7 @@
+/usr/lib/python2.7/dist-packages/sqlalchemy/engine/default.py:436: Warning: Duplicate index 'block_device_mapping_instance_uuid_virtual_name_device_name_idx' defined on the table 'nova.block_device_mapping'. This is deprecated and will be disallowed in a future release.
+  cursor.execute(statement, parameters)
+
+
+
+/usr/lib/python2.7/dist-packages/sqlalchemy/engine/default.py:436: Warning: Duplicate index 'uniq_instances0uuid' defined on the table 'nova.instances'. This is deprecated and will be disallowed in a future release.
+  cursor.execute(statement, parameters)
